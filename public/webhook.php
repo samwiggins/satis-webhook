@@ -15,6 +15,7 @@ if (!file_exists(dirname(__DIR__).'/config.yml')) {
 $request = Request::createFromGlobals();
 
 $defaults = array(
+    'cwd' => '.',
     'bin' => 'bin/satis',
     'json' => 'satis.json',
     'webroot' => 'web/',
