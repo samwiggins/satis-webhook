@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__).'/vendor/autoload.php';
+require_once __DIR__.'/vendor/autoload.php';
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
 
@@ -7,7 +7,7 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\IpUtils;
 use \Symfony\Component\HttpFoundation\Request;
 
-if (!file_exists(dirname(__DIR__).'/config.yml')) {
+if (!file_exists(__DIR__.'/config.yml')) {
     echo "Please, define your satis configuration in a config.yml file.\nYou can use the config.yml.dist as a template.";
     exit(-1);
 }
@@ -15,14 +15,13 @@ if (!file_exists(dirname(__DIR__).'/config.yml')) {
 $request = Request::createFromGlobals();
 
 $defaults = array(
-    'cwd' => '.',
     'bin' => 'bin/satis',
     'json' => 'satis.json',
     'webroot' => 'web/',
     'user' => null,
     'authorized_ips' => null
 );
-$config = Yaml::parse(dirname(__DIR__).'/config.yml');
+$config = Yaml::parse(__DIR__.'/config.yml');
 $config = array_merge($defaults, $config);
 
 if (null !== $config['authorized_ips']) {
@@ -45,9 +44,7 @@ if (null !== $config['authorized_ips']) {
         exit(-1);
     }
 }
-
-chdir($config['cwd']);
-
+var_dump(getcwd(), $config['bin']);
 $errors = array();
 if (!file_exists($config['bin'])) {
     $errors[] = 'The Satis bin could not be found.';
@@ -71,7 +68,7 @@ if (!empty($errors)) {
 
 $builder = new ProcessBuilder(array('php', $config['bin'], 'build', $config['json'], $config['webroot']));
 $process = $builder->getProcess();
-
+var_dump($process);
 $exitCode = $process->run(function ($type, $buffer) {
     if ('err' === $type) {
         echo 'E';
