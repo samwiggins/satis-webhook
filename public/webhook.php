@@ -1,12 +1,13 @@
 <?php
-require_once __DIR__.'/vendor/autoload.php';
-
+require_once dirname(__DIR__).'/vendor/autoload.php';
 use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
+
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\IpUtils;
 use \Symfony\Component\HttpFoundation\Request;
 
-if (!file_exists(__DIR__.'/config.yml')) {
+if (!file_exists(dirname(__DIR__).'/config.yml')) {
     echo "Please, define your satis configuration in a config.yml file.\nYou can use the config.yml.dist as a template.";
     exit(-1);
 }
@@ -20,7 +21,7 @@ $defaults = array(
     'user' => null,
     'authorized_ips' => null
 );
-$config = Yaml::parse(__DIR__.'/config.yml');
+$config = Yaml::parse(dirname(__DIR__).'/config.yml');
 $config = array_merge($defaults, $config);
 
 if (null !== $config['authorized_ips']) {
@@ -43,6 +44,8 @@ if (null !== $config['authorized_ips']) {
         exit(-1);
     }
 }
+
+chdir($config['cwd']);
 
 $errors = array();
 if (!file_exists($config['bin'])) {
@@ -70,7 +73,9 @@ if (null !== $config['user']) {
     $command = sprintf('sudo -u %s -i %s', $config['user'], $command);
 }
 
-$process = new Process($command);
+$builder = new ProcessBuilder(array('php', $config['bin'], 'build', $config['json'], $config['webroot']));
+$process = $builder->getProcess();
+
 $exitCode = $process->run(function ($type, $buffer) {
     if ('err' === $type) {
         echo 'E';
