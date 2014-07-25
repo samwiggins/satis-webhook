@@ -69,11 +69,6 @@ if (!empty($errors)) {
     exit(-1);
 }
 
-$command = sprintf('%s build %s %s', $config['bin'], $config['json'], $config['webroot']);
-if (null !== $config['user']) {
-    $command = sprintf('sudo -u %s -i %s', $config['user'], $command);
-}
-
 $builder = new ProcessBuilder(array('php', $config['bin'], 'build', $config['json'], $config['webroot']));
 $process = $builder->getProcess();
 
@@ -85,5 +80,5 @@ $exitCode = $process->run(function ($type, $buffer) {
         echo '.';
     }
 });
-
+echo "\n\n" . ($process->getOutput());
 echo "\n\n" . ($exitCode === 0 ? 'Successful rebuild!' : 'Oops! An error occured!') . "\n";
