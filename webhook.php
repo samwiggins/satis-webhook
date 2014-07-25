@@ -66,8 +66,13 @@ if (!empty($errors)) {
     exit(-1);
 }
 
-$builder = new ProcessBuilder(array('php', $config['bin'], 'build', $config['json'], $config['webroot']));
-$process = $builder->getProcess();
+$command = sprintf('php %s build %s %s', $config['bin'], $config['json'], $config['webroot']);
+if (null !== $config['user']) {
+    $command = sprintf('sudo -u %s -i %s', $config['user'], $command);
+}
+
+$process = new Process($command);
+
 var_dump($process);
 $exitCode = $process->run(function ($type, $buffer) {
     if ('err' === $type) {
